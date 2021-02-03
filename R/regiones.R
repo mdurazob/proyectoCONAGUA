@@ -1,5 +1,5 @@
 library("XML")
-    # Hay información de 2006-2019
+    # Hay informaciÃ³n de 2006-2019
 reg19 <- xmlToDataFrame("http://201.116.60.29/servicios/api/CaracteristicasRegionesHidrologicas/2019")
 reg18 <- xmlToDataFrame("http://201.116.60.29/servicios/api/CaracteristicasRegionesHidrologicas/2018")
 reg17 <- xmlToDataFrame("http://201.116.60.29/servicios/api/CaracteristicasRegionesHidrologicas/2017")
@@ -24,5 +24,5 @@ regiones0519 <- list(reg19,reg18,reg17,reg16,reg15,reg14,reg13,reg12,reg11,reg10
 regiones <- do.call(rbind, regiones0519)
 View(regiones)
 
-write.csv(x = regiones, file = "regionesHidrologicas.csv")
+readr::write_csv(x = regiones, file = "data/regionesHidrologicas.csv")
 
