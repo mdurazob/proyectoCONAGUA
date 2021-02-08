@@ -41,7 +41,7 @@ cve_mun <- read.csv("data/clave_municipio.csv",sep=";") %>%
 precipitacion <- read.csv("data/precipitacion_fin1.csv") %>% 
   as_tibble()
 
-municipios <- read.csv("data/datos11/Catalogo_CLICOM_Precipitacion (2).csv") %>% 
+municipios <- read.csv("data/Catalogo_CLICOM_Precipitacion (2).csv") %>% 
   as_tibble()
 
 municipios <- 
