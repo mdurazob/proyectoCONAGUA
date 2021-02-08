@@ -29,7 +29,7 @@ datos_agua_11 <- datos_agua_1 %>%
   mutate(
     across(vmae:a, na_impute)
   ) %>% 
-  complete(year = 2005:2020) %>% 
+  complete(year = 2005:2023) %>% 
   fill(vmae:a, .direction = "up") %>% 
   ungroup()
 
@@ -73,7 +73,7 @@ municipiosRH <- cve_mun %>%
 # ---------------------------------------------------------------------------------------------
 
 datos_agua_2 <- municipiosRH %>% 
-  left_join(datos_agua_11, by = c("RHA", "CUENCA", "Año" = "year"))
+  right_join(datos_agua_11, by = c("RHA", "CUENCA", "Año" = "year"))
 
 cuencas_rh <- XML::xmlToDataFrame("http://201.116.60.29/servicios/api/disponibilidadcuencashidrologicas/2017") %>% 
   as_tibble() %>% 
@@ -86,10 +86,14 @@ datos_agua_21 <- datos_agua_2 %>%
   left_join(cuencas_rh) %>% 
   arrange(RHA, CUENCA, Año) %>% 
   filter(Año >= 2005) %>% 
+  group_by(Id_rh, Año) %>% 
+  mutate(
+    Anual = ifelse(is.na(Anual), median(Anual, na.rm = T), Anual)
+  ) %>% 
   group_by(RHA, CUENCA, Año)
 
 precipitacion_total <- datos_agua_21 %>% 
-  summarise(Anual = mean(Anual))
+  summarise(Anual = median(Anual, na.rm = T))
 
 datos_aguaF <- datos_agua_21 %>% 
   slice(1) %>% 
@@ -100,19 +104,24 @@ datos_aguaF <- datos_agua_21 %>%
 
 RHF <- datos_aguaF %>%
   ungroup() %>%
-  filter(!is.na(Id_rh)) %>% 
+  filter(!is.na(Id_rh), Id_rh != 32) %>% 
   fill(vaeas, clv) %>% 
+  mutate(
+    vmae = ifelse(Id_rh == 24 & Año == 2020, NA_real_, vmae)
+  ) %>% 
   group_by(RHA, CUENCA) %>% 
   mutate(
     a = imputeTS::na_ma(a, 1, weighting = "simple"),
     k = a * Anual,
     c = vmae / k * 100,
     c = imputeTS::na_ma(c, 1, weighting = "simple"),
-    vmae = k * c /100
+    vmae = k * c /100,
+    vmae = imputeTS::na_ma(vmae, 1, weighting = "simple")
   ) %>% 
   group_by(id_rh = as.numeric(Id_rh), anio = Año) %>% 
   summarise(
-    across(vmae:dma, sum)
+    across(vmae:dma, sum),
+    prec = median(Anual, na.rm = T)
   ) %>% 
   ungroup()
 
@@ -129,4 +138,4 @@ RHF %>%
   select(-model) %>% 
   unnest(data) %>% 
   relocate(p, .after = dma) %>% 
-  write_csv("data/predicciones.csv")
+  write_csv("shiny/data/predicciones.csv")
