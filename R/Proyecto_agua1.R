@@ -8,12 +8,10 @@ library(stringi)
 ##########Lectura de bases de datos############
 ###############################################
 
-setwd("C:\\Users\\Luis_Romero\\Desktop\\Proyecto agua\\Bases_finales")
-#setwd()
-#Base_final<.read.csv("")
+#setwd("C:\\Users\\Luis_Romero\\Desktop\\Proyecto agua\\Bases_finales")
 
 #################################################
-#############PrecipitaciÛn anual#################
+#############Precipitaci√≥n anual#################
 #################################################
 
 ##For para obtener las precipitaciones por municipio
@@ -21,10 +19,10 @@ setwd("C:\\Users\\Luis_Romero\\Desktop\\Proyecto agua\\Bases_finales")
 z<-"http://201.116.60.29/servicios/api/Ambiental/PrecipitacionMensualMunicipio/2000"
 #Esta base final contiene las precipitaciones por municipios
 Base_final<-XML::xmlToDataFrame(z)
-Base_final["AÒo"]<-2000
+Base_final["A√±o"]<-2000
 for(i in 2001:2018){
   w<-XML::xmlToDataFrame(paste("http://201.116.60.29/servicios/api/Ambiental/PrecipitacionMensualMunicipio/",i,sep=""))
-  w["AÒo"]<-i
+  w["A√±o"]<-i
   Base_final<-rbind(Base_final,w)
 }
 
@@ -35,29 +33,17 @@ for(i in 2001:2018){
 #############################################3
 #Proyecto agua Precipitaciones
 #############################################
-w<-merge(municipios,datos_agua_1,all.y=TRUE)
-aux<-unique(w$CUENCA)
-unique(filter(w,!(CUENCA %in% aux))$CUENCA)
-head(w)
-which(is.na(w$n))
-###########333333
-library(dplyr)
-data/precipitacion.csv
 #https://github.com/mnaR99/proyectoCONAGUA/blob/main/data/precipitacion.csv
-Preci<-read.csv("https://raw.githubusercontent.com/mnaR99/proyectoCONAGUA/main/data/precipitacion.csv")
+#Preci<-read.csv("https://raw.githubusercontent.com/mnaR99/proyectoCONAGUA/main/data/precipitacion.csv")
 Preci<-Base_final
-head(Preci)
-names(Preci)
-length(unique(Preci$Mpio))
-filter(Preci,Cve_Mpio==8002)
-str(Preci)
+head(Preci);names(Preci)
 
 ##########################################################
 #####Precipitaciones por municipio en un futuro###########
 ##########################################################
 
 
-####La funciÛn que se nos compartio en clase para obtener el mejor modelo
+####La funci√≥n que se nos compartio en clase para obtener el mejor modelo
 ###En base al AIC
 
 get.best.arima <- function(x.ts, maxord = c(1, 1, 1, 1, 1, 1)){
@@ -79,26 +65,20 @@ get.best.arima <- function(x.ts, maxord = c(1, 1, 1, 1, 1, 1)){
   list(best.aic, best.fit, best.model)
 }
 
-#columns<-names(Preci)[7:19]
-#Preci %>% mutate_each_(list(num=as.double),columns)
-#Preci$Cve_Mpio
 
-##AquÌ se podia poner desde que municipio empezar ya que se tuvierÛn problemas con los siguientes municipios
-#1520,2151,2170,2214,2260,2275.De aquÌ para adelante los municipios son "aridos"
+##Aqu√≠ se podia poner desde que municipio empezar ya que se tuvier√≥n problemas con los siguientes municipios
+#1520,2151,2170,2214,2260,2275.De aqu√≠ para adelante los municipios son "aridos"
 #Error in optim(init[mask], armaCSS, method = optim.method, hessian = TRUE,  : 
 #                 valor inicial en 'vmmin' no es finito
-#               Adem·s: There were 50 or more warnings (use warnings() to see the first 50)
+#               Adem√°s: There were 50 or more warnings (use warnings() to see the first 50)
 
 n11<-1
 Preci<-Base_final
-Preci<-filter(Preci,Mpio %in% faltantes[,1])
-names(Preci)
 #Municipios unicos
 Mun<-as.vector(unique(Preci$Cve_Mpio[n11:length(Preci$Cve_Mpio)]))
 #Base inicial que tendra al final las predicciones por municipio
-#227
 base_mun_fin<-data.frame(prep_anu=c(),year=c(),Mpio=c())
-#AÒos de predicciÛn
+#A√±os de predicci√≥n
 year<-2019:2023
 #Este for se tardo 4 horas en completar
 for (i in n11:length(Mun)){
@@ -107,17 +87,14 @@ for (i in n11:length(Mun)){
   
   #Convertir los datos de cada municipio en serie de tiempo
   Datos<-filter(Preci,Cve_Mpio==Mun[i])
-  AÒos<-select(Datos,Anio)
+  A√±os<-select(Datos,Anio)
   Serie<-select(Datos,Enero:Diciembre)
   vec<-as.numeric(as.vector(t(Serie)))
-  plot(vec, xlab = "Tiempo",
-       main = "Reserva de pasajeros aÈreos internacionales", 
-       sub = "Estados Unidos en el periodo 1949-1960")
-  #En caso de que se tuviera una precipitaciÛn de 0 se decidio poner 0.5
+  #En caso de que se tuviera una precipitaci√≥n de 0 se decidio poner 0.5
   #Para que el logaritmo no puera un problema 
-  Time<-ts(replace(vec,vec==0,0.5),start=c(AÒos[1,1]),frequency=12)
+  Time<-ts(replace(vec,vec==0,0.5),start=c(A√±os[1,1]),frequency=12)
   
-  #FunciÛn para encontrar el mejor modelo arima
+  #Funci√≥n para encontrar el mejor modelo arima
   best.arima.elec <- get.best.arima(log(Time),
                                     maxord = c(2, 2, 2, 2, 2, 2))
   
@@ -125,14 +102,14 @@ for (i in n11:length(Mun)){
   best.fit.elec <- best.arima.elec[[2]]
   pr <- predict(best.fit.elec,60)$pred 
   
-  #Transformar esta informaciÛn a precipitaciÛn anual 
+  #Transformar esta informaci√≥n a precipitaci√≥n anual 
   vec.serie<-as.vector(aggregate.ts(exp(pr), FUN = sum))
   data.serie<-data.frame(prep_anu=vec.serie,year,MUNICIPIO=rep(as.vector(Mun[i]),5))
   base_mun_fin<-rbind(base_mun_fin,data.serie)
   
 }
 
-##AquÌ se iban guardando los resultados
+##Aqu√≠ se iban guardando los resultados
 base_aux1<-base_mun_fin
 write.csv(base_aux1,"C:\\Users\\Luis_Romero\\Documentos6.csv",fileEncoding="latin1")  
 
@@ -143,5 +120,3 @@ names(datos_agua_1)
 datos_finales
 
 
-
-#####Esto es lo necesaio antes de lo de ayer
