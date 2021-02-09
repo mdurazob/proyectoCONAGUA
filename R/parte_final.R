@@ -1,11 +1,21 @@
 
+#El objetivo final de esto es poder estimar la disponibilidad media de agua pro región hidrica deacuerdo a valores
+#como volumen anual de escurrimiento volumen anual de extracción de aguas superficiales y de importaciones y exportaciones
+
+#Hipotesis: 
+#1.-Existe esa relación linead entre la disponibilidad de agua y las mencionadas en el parrafo anterior. 
+#2.-Existe una relación lineal entre el volumen medio anual de escurrimiento natural  y la precipitación por 
+#el área.
+#3.-Se podra sin problema alguno realizar las series de tiempo para los municipios de todo el país aplicado a las precipitaciones. 
+#
+
 library(tidyverse)
 library(stringi)
 
 #datos las Cuencas , los cuales vienen de CONAGUA donde cada variable significa lo siguiente
 #clv=Clave de la cuenca
 #nom_cue=Nombre de la cuenca
-#vmae=volumen medio anual de escurrimiento
+#vmae=volumen medio anual de escurrimiento natural
 #vaeas= Volumen anual de extracción de aguas superficiales
 #RHA=Región hidrico adminsitrativa
 #http://sina.conagua.gob.mx/sina/tema.php?tema=cuencas&ver=mapa&o=0&n=nacional
@@ -136,11 +146,18 @@ datos_aguaF <- datos_agua_21 %>%
   left_join(precipitacion_total)
 
 # Datos necesarios para las predicciones-------------
-
+#http://siga.jalisco.gob.mx/Assets/documentos/normatividad/nom011cna2000.htm#:~:text=NORMA%20Oficial%20Mexicana%20NOM%2D011%2DCNA%2D2000&text=Conservaci%C3%B3n%20del%20recurso%20agua%2DQue,dice%3A%20Comisi%C3%B3n%20Nacional%20del%20Agua.
 #Aquí fue donde tomamos muchas decisiones , primero para el área=a que tendria asociada una cuenca de los años 2021 a 2023 se utilizo medias moviles 
 #luego se calculo un coeficiente k=a*Anual donde Anual es la precipitación anual por cuenca , ya que este coeficiente nos ayudara a calcular 
 #la el coeficiente vmae=a*Anual*ce donde ce es un coeficiente afectado por el terreno donde esta la cuenca 
-
+#y además de capturar cosas que quiza no consideramos .
+#Aquí sucede una de nuestras hipotesis y es que pensabamos que para poder calcular ese coeficiente ce podriamos 
+#hacer una regresión lineal donde el objetivo sea la suma de vmae por RH y las variables que explicarian 
+#serian las k asociadas a cada cuenca siendo los coeficientes estimados esas ce , sin embargo al realizarlo no salio para nada significativo d
+#debido a la gran relación que tienen entre las cuencas de la RH , por eso obtamos por este metodo de calcular la ce=c.
+#Por otra parte tambien calculamos los valores futuros con medias moviles y por ultimo el valor de vmae se calculo 
+#mediante la multiplicación de k por c de los periodo de 2021 a 2023. Por ultimo teniendo estos valores se calcularón.
+#sumas por región hidrica de dma,vmae,y de la precipitación.
 RHF <- datos_aguaF %>%
   ungroup() %>%
   filter(!is.na(Id_rh), Id_rh != 32) %>% 
@@ -150,12 +167,12 @@ RHF <- datos_aguaF %>%
   ) %>% 
   group_by(RHA, CUENCA) %>% 
   mutate(
-    a = imputeTS::na_ma(a, 1, weighting = "simple"),
+    a = imputeTS::na_ma(a, 2, weighting = "simple"),
     k = a * Anual,
     c = vmae / k * 100,
-    c = imputeTS::na_ma(c, 1, weighting = "simple"),
+    c = imputeTS::na_ma(c, 2, weighting = "simple"),
     vmae = k * c /100,
-    vmae = imputeTS::na_ma(vmae, 1, weighting = "simple")
+    vmae = imputeTS::na_ma(vmae, 2, weighting = "simple")
   ) %>% 
   group_by(id_rh = as.numeric(Id_rh), anio = Año) %>% 
   summarise(
@@ -164,8 +181,13 @@ RHF <- datos_aguaF %>%
   ) %>% 
   ungroup()
 
+#Auí vienen las importaciones y exportaciones por región hidrologica.
 rhs <- read_csv("data/regionesHidrologicas.csv")
 
+#Por ultimo le pegegamos este valor de importaciones y exportaciones , para despues realizar una regresión lineal
+#para predecir la disponibilidad media anual de agua con ayuda de vmae ,vaeas y las importaciones y exportaciones
+#b0 capturaria todo esa información que no esta disponible al publico . Ya con el modelo hariamos predicciones
+#las cuales se ven reflejadas en el shiny adjunto
 RHF %>% 
   left_join(rhs) %>% 
   replace_na(list(ImportacionesExportacionesOtrosPaises = 0)) %>% 
