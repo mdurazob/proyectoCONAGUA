@@ -1,6 +1,8 @@
 # Proyecto Bedu: Fase 2
 
-```
+* Shiny: https://mnar99.shinyapps.io/proyectoCONAGUA/
+
+---
 
 Uno de los factores que tenemos que tener en cuenta para predecir el vmae es la precipitación , se puede calcular con la siguiente formula, propuesta por la NOM. . 
 (es vmae=p*a*ce), así conagua proporciona un historico de 2000 a 2018(mensuales y anuales) de precipitaciones, las cuales se emplearon para entrenar series de tiempo que nos ayudaran a estimar la precipitación anual del 2019 al 2023.
@@ -27,7 +29,3 @@ De este shiny podemos identificar algunas cosas clave , como lo son las regiones
 Por otra parte, revisando las predicciones y tendencias de la disponibilidad media de agua por RH , se puede decir también que por cada 2 RH que se están recuperando en dma hay otras 8 que están decayendo en dma , significando que el agua que consumimos está en grave peligro.
 
 Y aunque en nosotros está en cuidar más el agua , también es necesario que  CONAGUA realice concesiones de manera responsable. Si juntos cuidamos la salud de nuestros acuíferos ,lo cual se traduce en  fuente de vida y desarrollo del resto de los seres vivos, contribuyendo al bienestar general en todas las actividades esenciales de vida.
-
-```
-
-* Shiny: https://mnar99.shinyapps.io/proyectoCONAGUA/
