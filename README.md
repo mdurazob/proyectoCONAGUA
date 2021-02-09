@@ -10,8 +10,9 @@ En el Shiny Dashboard se presentan los resultados finales.
 + Sergio Esteban Camacho Paez
 + Jacob Hernández Mejía
 
-link al canal <-https://www.youtube.com/channel/UCKEuaTNTUY0FOzs8XwrATBg
-link al video <- https://youtu.be/jFIFGc1zS8U
+---
+
+Video Resumen: https://youtu.be/jFIFGc1zS8U
 
 ---
 
