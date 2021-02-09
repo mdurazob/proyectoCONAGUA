@@ -2,7 +2,6 @@
 library(shiny)
 library(shinydashboard)
 library(sf)
-library(here)
 library(leaflet)
 library(tidyverse)
 library(scales)
@@ -16,7 +15,7 @@ rh_sf <-
         layer = "Regiones_Hidrologicas_2019"
     ) %>% 
     st_transform(4326) %>% 
-    left_join(read_csv(here("data/disp2020.csv"))) %>% 
+    left_join(read_csv("data/disp2020.csv")) %>% 
     filter(id_rh != 32)
 
 bin_pal <- colorBin('YlGnBu', rh_sf$num_cuen, bins = 5)
