@@ -1,6 +1,20 @@
 # Proyecto Bedu: Fase 2
 
+Somos el equipo 16 y nuestro tema es "Disponibilidad media de agua por Región hidrológica en México".
+
+El código, contiene anotaciones para conocer el procedimiento y objetivos que se tienen. 
+En el Shiny Dashboard se presentan los resultados finales.
+
++ Luis Donaldo Romero Tapia 
++ Katherine Arzate Serrano
++ Sergio Esteban Camacho Paez
++ Jacob Hernández Mejía
+
+---
+
 * Shiny: https://mnar99.shinyapps.io/proyectoCONAGUA/
+
+**Nota:** Debido a que se hace uso de shapefiles, el servidor tarda unos segundos en cargar el mapa base.
 
 ---
 
